@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+
+
 
 @Component({
   selector: 'app-login',
@@ -18,7 +21,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router // <-- aquí está el que faltaba
   ) {}
 
   ngOnInit(): void {
@@ -32,19 +36,17 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({
         next: (res: any) => {
-          console.log('Login exitoso', res);
-          this.errorMessage = '';
-          this.showError = false;
-          this.showSuccess = true;
+          localStorage.setItem('token', res.token); // 🔐 Guardar token
+          this.router.navigate(['/dashboard']);     // 👉 Redirigir
         },
         error: (err: any) => {
           this.errorMessage = 'Credenciales inválidas';
           this.showError = true;
-          this.showSuccess = false;
         }
       });
     }
   }
+  
 
   get email() {
     return this.loginForm.get('email');
